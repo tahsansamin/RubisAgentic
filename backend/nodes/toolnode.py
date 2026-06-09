@@ -1,8 +1,11 @@
 from langchain.messages import ToolMessage
+from tools.extractJSON import extract_fuel_report
 
 
 def tool_node(state: dict):
     """Performs the tool call"""
+    tools = [extract_fuel_report]
+    tools_by_name = {tool.name: tool for tool in tools}
 
     result = []
     for tool_call in state["messages"][-1].tool_calls:

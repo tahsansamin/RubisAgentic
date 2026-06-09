@@ -38,5 +38,5 @@ def initialize_gemini_model_with_tools(
         tool_choice=tool_choice,
     )
 
-    tools_by_name = {tool.__name__: tool for tool in tools}
+    tools_by_name = {tool.name: tool for tool in tools}
     return model_with_tools, tools_by_name

@@ -13,8 +13,18 @@ class FuelReportInput(TypedDict):
     report: str
 
 def clean_json(text: str) -> str:
-    # remove ```json and ```
+    """Extract JSON from text that may contain extra content."""
     text = text.strip()
+    
+    # Try to find JSON object in the text
+    # Look for the first { and match it with the last }
+    start_idx = text.find('{')
+    end_idx = text.rfind('}')
+    
+    if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+        return text[start_idx:end_idx+1].strip()
+    
+    # Fallback to old method if no braces found
     text = re.sub(r"^```json", "", text)
     text = re.sub(r"^```", "", text)
     text = re.sub(r"```$", "", text)
@@ -29,8 +39,10 @@ def extract_fuel_report(report: str) -> Dict[str, Any]:
 
     llm = Gemini(model="gemini-2.5-flash", temperature=0)
 
-    system_prompt = """
-You are a fuel station data extraction engine.
+    system_prompt = """You are a fuel station data extraction engine.
+
+CRITICAL: Output ONLY valid JSON. NO explanation, NO reasoning, NO comments, NO extra text.
+Start with { and end with }. Nothing else.
 
 Extract structured JSON from messy station reports.
 
@@ -39,8 +51,7 @@ RULES:
 - PMS/AGO may be misspelled (PMS, PMs, PMS., AG0, AGo, AGO)
 - If missing, use null
 - Do not guess values
-- Output ONLY valid JSON matching schema
-"""
+- Output ONLY valid JSON matching schema"""
 
     schema = {
         "date": None,
@@ -74,22 +85,25 @@ RULES:
         }
     }
 
-    prompt = f"""
-Extract data from this report:
+    prompt = f"""Extract data from this report and return ONLY valid JSON (no other text):
 
 {report}
 
-Return JSON in EXACT format:
-{schema}
-"""
+Return valid JSON in EXACT format (start with {{ and end with }}):
+{json.dumps(schema)}"""
 
     result = llm.invoke([
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": prompt}
     ])
     cleaned = clean_json(result.content)
-
-    return json.loads(cleaned)
+    
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON: {e}")
+        print(f"Cleaned response: {cleaned}")
+        raise
 
 
 
