@@ -1,58 +1,27 @@
-from langchain.messages import AnyMessage
-from typing_extensions import TypedDict, Annotated
-import operator
-from langchain.messages import SystemMessage
-
-class MessagesState(TypedDict):
-    messages: Annotated[list[AnyMessage], operator.add]
-    llm_calls: int
-
-
-def llm_call(state: dict):
-    """LLM decides whether to call a tool or not"""
-
-    return {
-        "messages": [
-            model_with_tools.invoke(
-                [
-                    SystemMessage(
-                        content="You are a helpful assistant tasked with performing arithmetic on a set of inputs."
-                    )
-                ]
-                + state["messages"]
-            )
-        ],
-        "llm_calls": state.get('llm_calls', 0) + 1
-    }
-
-
-
-from langchain.messages import ToolMessage
-
-
-def tool_node(state: dict):
-    """Performs the tool call"""
-
-    result = []
-    for tool_call in state["messages"][-1].tool_calls:
-        tool = tools_by_name[tool_call["name"]]
-        observation = tool.invoke(tool_call["args"])
-        result.append(ToolMessage(content=observation, tool_call_id=tool_call["id"]))
-    return {"messages": result}
-
-
-from typing import Literal
+from backend.states.state import MessagesState
+from backend.nodes.llmcall import llm_call
+from backend.nodes.shouldcontinue import should_continue
+from backend.nodes.toolnode import tool_node
 from langgraph.graph import StateGraph, START, END
 
-def should_continue(state: MessagesState) -> Literal["tool_node", END]:
-    """Decide if we should continue the loop or stop based upon whether the LLM made a tool call"""
+agent_builder = StateGraph(MessagesState)
 
-    messages = state["messages"]
-    last_message = messages[-1]
+# Add nodes
+agent_builder.add_node("llm_call", llm_call)
+agent_builder.add_node("tool_node", tool_node)
 
-    # If the LLM makes a tool call, then perform an action
-    if last_message.tool_calls:
-        return "tool_node"
+# Add edges to connect nodes
+agent_builder.add_edge(START, "llm_call")
+agent_builder.add_conditional_edges(
+    "llm_call",
+    should_continue,
+    ["tool_node", END]
+)
+agent_builder.add_edge("tool_node", "llm_call")
 
-    # Otherwise, we stop (reply to the user)
-    return END
+# Compile the agent
+agent = agent_builder.compile()
+
+from IPython.display import Image, display
+# Show the agent
+display(Image(agent.get_graph(xray=True).draw_mermaid_png()))
