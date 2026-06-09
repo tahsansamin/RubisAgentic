@@ -1,7 +1,7 @@
-from backend.states.state import MessagesState
-from backend.nodes.llmcall import llm_call
-from backend.nodes.shouldcontinue import should_continue
-from backend.nodes.toolnode import tool_node
+from states.state import MessagesState
+from nodes.llmcall import llm_call
+from nodes.shouldcontinue import should_continue
+from nodes.toolnode import tool_node
 from langgraph.graph import StateGraph, START, END
 
 agent_builder = StateGraph(MessagesState)
@@ -24,4 +24,7 @@ agent = agent_builder.compile()
 
 from IPython.display import Image, display
 # Show the agent
-display(Image(agent.get_graph(xray=True).draw_mermaid_png()))
+graph = agent.get_graph(xray=True).draw_mermaid_png()
+display(Image(graph))
+# with open("graph.png", "wb") as f:
+#     f.write(graph)

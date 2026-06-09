@@ -1,6 +1,6 @@
 from langchain.messages import SystemMessage
 
-from backend.states.state import MessagesState
+from states.state import MessagesState
 
 
 def llm_call(state: MessagesState) -> MessagesState:
