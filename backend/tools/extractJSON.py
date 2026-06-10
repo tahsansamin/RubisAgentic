@@ -1,7 +1,7 @@
 from typing import TypedDict, Optional, List, Dict, Any
 from langchain_core.tools import tool
 from langchain_google_genai import ChatGoogleGenerativeAI as Gemini
-from langchain_cerebras import ChatCerebras
+from langchain_groq import ChatGroq
 
 from dotenv import load_dotenv
 import os
@@ -17,20 +17,64 @@ class FuelReportInput(TypedDict):
 def clean_json(text: str) -> str:
     """Extract JSON from text that may contain extra content."""
     text = text.strip()
-    
-    # Try to find JSON object in the text
-    # Look for the first { and match it with the last }
+    if not text:
+        return text
+
+    # Remove markdown code fences if present.
+    text = re.sub(r"^```json\s*", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"^```\s*", "", text)
+    text = re.sub(r"\s*```$", "", text)
+    text = text.strip()
+
+    # If the whole response is valid JSON already, return it.
+    try:
+        json.loads(text)
+        return text
+    except json.JSONDecodeError:
+        pass
+
+    # Find balanced JSON objects while ignoring braces inside strings.
+    candidates: list[str] = []
+    depth = 0
+    in_string = False
+    escape = False
+    start_idx: int | None = None
+
+    for idx, ch in enumerate(text):
+        if ch == '"' and not escape:
+            in_string = not in_string
+        if ch == '\\' and not escape:
+            escape = True
+        else:
+            escape = False
+
+        if in_string:
+            continue
+
+        if ch == '{':
+            if depth == 0:
+                start_idx = idx
+            depth += 1
+        elif ch == '}' and depth > 0:
+            depth -= 1
+            if depth == 0 and start_idx is not None:
+                candidates.append(text[start_idx:idx + 1])
+                start_idx = None
+
+    for candidate in candidates:
+        try:
+            json.loads(candidate)
+            return candidate
+        except json.JSONDecodeError:
+            continue
+
+    # Fallback: return the widest brace-delimited section.
     start_idx = text.find('{')
     end_idx = text.rfind('}')
-    
     if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
-        return text[start_idx:end_idx+1].strip()
-    
-    # Fallback to old method if no braces found
-    text = re.sub(r"^```json", "", text)
-    text = re.sub(r"^```", "", text)
-    text = re.sub(r"```$", "", text)
-    return text.strip()
+        return text[start_idx:end_idx + 1].strip()
+
+    return text
 
 
 
@@ -40,9 +84,9 @@ def extract_info_meter_sheet(report: str) -> Dict[str, Any]:
     Extract pump opening, closing, and RTT data from a fuel station report.
     """
 
-    llm = ChatCerebras(
-    model="llama-3.3-70b",
-    temperature=0)
+    llm = ChatGroq(
+        model="qwen/qwen3-32b",
+        temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
 
@@ -102,7 +146,7 @@ def extract_info_electronic_sales_sheet(report: str) -> Dict[str, Any]:
     from a fuel station report.
     """
 
-    llm = ChatCerebras(model="llama-3.3-70b", temperature=0)
+    llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
 
@@ -197,4 +241,5 @@ Return valid JSON in EXACT format (start with {{ and end with }}):
 # Ago: little drops
 # Bik: Unmeasured droops """
 
-# print(extract_fuel_report(test_report))
+# print(extract_info_electronic_sales_sheet(test_report))
+# print(extract_info_meter_sheet(test_report))

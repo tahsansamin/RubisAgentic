@@ -1,12 +1,13 @@
 # tools/write_momo.py
 import json
+import os
 import openpyxl
 from datetime import datetime, date
 from openpyxl.utils import get_column_letter, column_index_from_string
 from langchain.tools import tool
 from typing import Optional
 
-EXCEL_PATH = "petrol_station.xlsx"
+EXCEL_PATH = os.path.join(os.path.dirname(__file__), "..", "DAILY BALANCE AUGUST 2024.xlsx")
 SHEET_NAME = "MOMO,AIRTEL,CARDS"
 
 DATE_ROW = 3
