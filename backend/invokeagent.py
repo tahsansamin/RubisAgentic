@@ -4,7 +4,7 @@ from langchain.messages import HumanMessage
 
 myagent = build_agent()
 test_input = """
-04/06/2026
+10th June 2026
       Pump 1
 PMS:1696506.241
 PMS:674346.474

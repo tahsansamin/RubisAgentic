@@ -31,10 +31,11 @@ def clean_json(text: str) -> str:
     return text.strip()
 
 
+
 @tool
-def extract_fuel_report(report: str) -> Dict[str, Any]:
+def extract_info_meter_sheet(report: str) -> Dict[str, Any]:
     """
-    Extract structured fuel station report data from messy SMS/log text.
+    Extract pump opening, closing, and RTT data from a fuel station report.
     """
 
     llm = Gemini(model="gemini-2.5-flash", temperature=0)
@@ -44,60 +45,99 @@ def extract_fuel_report(report: str) -> Dict[str, Any]:
 CRITICAL: Output ONLY valid JSON. NO explanation, NO reasoning, NO comments, NO extra text.
 Start with { and end with }. Nothing else.
 
-Extract structured JSON from messy station reports.
-
 RULES:
-- Normalize numbers (remove commas)
-- PMS/AGO may be misspelled (PMS, PMs, PMS., AG0, AGo, AGO)
-- If missing, use null
-- Do not guess values
-- Output ONLY valid JSON matching schema"""
+- Normalize all numbers (remove commas, spaces)
+- Pump names may be misspelled — map them to: PMS 1, PMS 2, PMS 3, PMS 4, AGO 2, AGO 3, AGO 4
+- If a value is missing or not mentioned, use null
+- Do not guess or calculate values — only extract what is explicitly stated
+- RTT means returns, transfers, or losses"""
 
     schema = {
         "date": None,
-        "pumps": [
-            {
-                "pump_id": "",
-                "products": {
-                    "PMS": None,
-                    "AGO": None
-                }
-            }
-        ],
-        "stock": {"PMS": None, "AGO": None},
-        "loss_and_gain": {"PMS": None, "AGO": None},
-        "total_sales": {"PMS": None, "AGO": None},
-        "lpg_sales": [],
-        "lubricants_sales": [],
-        "expenses": [],
-        "electronic_sales": {
-            "airtel_money": None,
-            "visa_card": None,
-            "rubis_card": None,
-            "rubis_app": None,
-            "top_up": None
+        "pumps": {
+            "PMS 1": {"opening": None, "closing": None},
+            "PMS 2": {"opening": None, "closing": None},
+            "PMS 3": {"opening": None, "closing": None},
+            "PMS 4": {"opening": None, "closing": None},
+            "AGO 2": {"opening": None, "closing": None},
+            "AGO 3": {"opening": None, "closing": None},
+            "AGO 4": {"opening": None, "closing": None},
         },
-        "banking_total": None,
-        "water_presence": {
-            "pms": None,
-            "ago": None,
-            "bik": None
+        "rtt": {
+            "PMS": None,
+            "AGO": None
         }
     }
 
-    prompt = f"""Extract data from this report and return ONLY valid JSON (no other text):
+    prompt = f"""Extract data from this fuel station report and return ONLY valid JSON (no other text):
 
 {report}
 
 Return valid JSON in EXACT format (start with {{ and end with }}):
-{json.dumps(schema)}"""
+{json.dumps(schema, indent=2)}"""
 
     result = llm.invoke([
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": prompt}
     ])
+
     cleaned = clean_json(result.content)
-    
+
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON: {e}")
+        print(f"Cleaned response: {cleaned}")
+        raise
+
+
+@tool
+def extract_info_electronic_sales_sheet(report: str) -> Dict[str, Any]:
+    """
+    Extract electronic sales data (MomoPay, Airtel, Visa Card, Rubis Card, Rubis App)
+    from a fuel station report.
+    """
+
+    llm = Gemini(model="gemini-2.5-flash", temperature=0)
+
+    system_prompt = """You are a fuel station data extraction engine.
+
+CRITICAL: Output ONLY valid JSON. NO explanation, NO reasoning, NO comments, NO extra text.
+Start with { and end with }. Nothing else.
+
+RULES:
+- Normalize all numbers (remove commas, spaces)
+- Payment method names may be misspelled or abbreviated — map them to:
+  MOMOPAY, AIRTEL, VISA CARD, RUBIS CARD, RUBIS APP
+- If a value is missing or not mentioned, use null
+- Do not guess or calculate values — only extract what is explicitly stated
+- Values are in Uganda Shillings (UGX), always whole numbers"""
+
+    schema = {
+        "date": None,
+        "electronic_sales": {
+            "MOMOPAY":    None,
+            "AIRTEL":     None,
+            "VISA CARD":  None,
+            "RUBIS CARD": None,
+            "RUBIS APP":  None,
+        }
+    }
+
+    prompt = f"""Extract electronic sales data from this fuel station report and return ONLY valid JSON (no other text):
+
+{report}
+
+Return valid JSON in EXACT format (start with {{ and end with }}):
+{json.dumps(schema, indent=2)}"""
+
+    result = llm.invoke([
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": prompt}
+    ])
+
+    cleaned = clean_json(result.content)
+
     try:
         return json.loads(cleaned)
     except json.JSONDecodeError as e:

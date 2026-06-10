@@ -4,7 +4,8 @@ from typing import Any, Dict, Tuple
 from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
 
-from .extractJSON import extract_fuel_report
+from .extractJSON import extract_info_meter_sheet, extract_info_electronic_sales_sheet
+from .insertexcel import write_fuel_meter_sheet
 
 load_dotenv()
 
@@ -32,7 +33,7 @@ def initialize_gemini_model_with_tools(
         **kwargs,
     )
 
-    tools = [extract_fuel_report]
+    tools = [extract_info_meter_sheet, extract_info_electronic_sales_sheet, write_fuel_meter_sheet]
     model_with_tools = chat_model.bind_tools(
         tools,
         tool_choice=tool_choice,
