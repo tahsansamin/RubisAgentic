@@ -3,37 +3,38 @@ from typing import Any, Dict, Tuple
 
 from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
+from langchain_cerebras import ChatCerebras
 
 from .extractJSON import extract_info_meter_sheet, extract_info_electronic_sales_sheet
-from .insertexcel import write_fuel_meter_sheet
+from .writefuelmeter import write_fuel_meter_sheet
+from .write_electronic_sales import write_electronic_sales_sheet
 
 load_dotenv()
 
 
-def initialize_gemini_model_with_tools(
-    model: str = "gemini-2.5-flash",
-    model_provider: str = "google_genai",
+def initialize_llama_model_with_tools(
+    model: str = "gpt-oss-120b",
+    model_provider: str = "cerebas",
     temperature: float = 0,
     tool_choice: str | bool = "auto",
     api_key: str | None = None,
     **kwargs: Any,
 ) -> Tuple[Any, Dict[str, Any]]:
-    """Create a Gemini chat model and bind the extractJSON tool set to it."""
+    """Create a Llama chat model and bind the extractJSON tool set to it."""
 
-    api_key = api_key or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+    api_key = api_key or os.environ.get("CERABRAS_API_KEY")
     if not api_key:
-        raise ValueError("Missing GEMINI_API_KEY or GOOGLE_API_KEY in environment")
+        raise ValueError("Missing CERABRAS_API_KEY in environment")
 
-    kwargs.setdefault("api_key", api_key)
 
-    chat_model = init_chat_model(
-        model,
-        model_provider=model_provider,
+    chat_model = ChatCerebras(
+        model=model,
+        api_key=api_key,
         temperature=temperature,
         **kwargs,
     )
 
-    tools = [extract_info_meter_sheet, extract_info_electronic_sales_sheet, write_fuel_meter_sheet]
+    tools = [extract_info_meter_sheet, extract_info_electronic_sales_sheet, write_fuel_meter_sheet, write_electronic_sales_sheet]
     model_with_tools = chat_model.bind_tools(
         tools,
         tool_choice=tool_choice,

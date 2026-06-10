@@ -58,7 +58,7 @@ def find_or_create_date_column(ws, target_date: date) -> str:
 
 
 @tool
-def write_momo_airtel_cards_to_excel(report_json: str) -> str:
+def write_electronic_sales_sheet(report_json: str) -> str:
     """
     Write electronic sales (MomoPay, Airtel, Visa Card, Rubis Card, Rubis App)
     into the MOMO,AIRTEL,CARDS sheet of the petrol station Excel file.

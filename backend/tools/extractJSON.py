@@ -1,6 +1,8 @@
 from typing import TypedDict, Optional, List, Dict, Any
 from langchain_core.tools import tool
 from langchain_google_genai import ChatGoogleGenerativeAI as Gemini
+from langchain_cerebras import ChatCerebras
+
 from dotenv import load_dotenv
 import os
 import json
@@ -38,7 +40,9 @@ def extract_info_meter_sheet(report: str) -> Dict[str, Any]:
     Extract pump opening, closing, and RTT data from a fuel station report.
     """
 
-    llm = Gemini(model="gemini-2.5-flash", temperature=0)
+    llm = ChatCerebras(
+    model="llama-3.3-70b",
+    temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
 
@@ -98,7 +102,7 @@ def extract_info_electronic_sales_sheet(report: str) -> Dict[str, Any]:
     from a fuel station report.
     """
 
-    llm = Gemini(model="gemini-2.5-flash", temperature=0)
+    llm = ChatCerebras(model="llama-3.3-70b", temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
 
