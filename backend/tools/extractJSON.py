@@ -2,7 +2,7 @@ from typing import TypedDict, Optional, List, Dict, Any
 from langchain_core.tools import tool
 from langchain_google_genai import ChatGoogleGenerativeAI as Gemini
 from langchain_groq import ChatGroq
-
+import re
 from dotenv import load_dotenv
 import os
 import json
@@ -255,6 +255,44 @@ Return valid JSON in EXACT format (start with {{ and end with }}):
 
 
 
+
+
+@tool
+def rewrite_report_for_llm(report: str) -> str:
+    """
+    Rewrite a petrol station report into a clearer, normalized plain text form for another LLM.
+    """
+
+    llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
+
+    system_prompt = """You are a petrol station report normalizer.
+
+Convert the raw report into a clear, easy-to-read plain text report for another language model.
+Keep all original data values exactly as provided.
+Correct obvious typos and normalize pump names and headings.
+Do not add explanations, analysis, or extra text beyond the rewritten report.
+Output only the rewritten report. 
+CRITICAL: DO NOT OUTPUT YOUR THOUGHT PROCESS I DO NOT CARE JUST STRICTLY OUTPUT THE REPORT"""
+
+    prompt = f"""Rewrite this petrol station report into a clearer text format for another LLM:
+
+{report}
+
+Rewritten report:"""
+
+    result = llm.invoke([
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": prompt}
+    ])
+    cleaned_text = re.sub(
+    r"<think>.*?</think>",
+    "",
+    result.content.strip(),
+    flags=re.DOTALL)
+
+    return cleaned_text.strip()
+
+
 test_report = """04/06/2026
       Pump 1
 PMS:1696506.241
@@ -302,4 +340,6 @@ Bik: Unmeasured droops """
 
 # print(extract_info_electronic_sales_sheet(test_report))
 # print(extract_info_meter_sheet(test_report))
-print(extract_expense.invoke(test_report))
+# print(extract_expense.invoke(test_report))
+# new_report = rewrite_report_for_llm.invoke(test_report)
+# print(extract_expense.invoke(new_report))

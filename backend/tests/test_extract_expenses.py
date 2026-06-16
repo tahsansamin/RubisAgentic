@@ -1,3 +1,5 @@
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import json
 
 import pytest
@@ -60,9 +62,9 @@ def test_extract_expenses_sheet_real_groq():
     the test is skipped.
     """
 
-    
-    result = extractJSON.extract_info_expenses_sheet.invoke(sample_report)
-   
+    rewritten_report = extractJSON.rewrite_report_for_llm.invoke(sample_report)
+    assert rewritten_report, "Rewritten report should not be empty"
+    result = extractJSON.extract_info_expenses_sheet.invoke(rewritten_report)
 
     assert isinstance(result, dict)
     # Ensure date matches the report's leading date
