@@ -341,5 +341,5 @@ Bik: Unmeasured droops """
 # print(extract_info_electronic_sales_sheet(test_report))
 # print(extract_info_meter_sheet(test_report))
 # print(extract_expense.invoke(test_report))
-# new_report = rewrite_report_for_llm.invoke(test_report)
-# print(extract_expense.invoke(new_report))
+new_report = rewrite_report_for_llm.invoke(test_report)
+print(extract_expense.invoke(new_report))

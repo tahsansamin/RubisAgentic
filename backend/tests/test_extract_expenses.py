@@ -64,12 +64,12 @@ def test_extract_expenses_sheet_real_groq():
 
     rewritten_report = extractJSON.rewrite_report_for_llm.invoke(sample_report)
     assert rewritten_report, "Rewritten report should not be empty"
-    result = extractJSON.extract_info_expenses_sheet.invoke(rewritten_report)
+    result = extractJSON.extract_expense.invoke(rewritten_report)
 
     assert isinstance(result, dict)
     # Ensure date matches the report's leading date
     assert result.get("date") == "04/06/2026"
-    assert "expenses" in result and isinstance(result["expenses"], dict)
+    assert "expenses" in result.keys() and isinstance(result["expenses"], dict)
 
     # Ensure 'Tp to Bank' expense exists and amount is 2000
     expenses = result["expenses"]

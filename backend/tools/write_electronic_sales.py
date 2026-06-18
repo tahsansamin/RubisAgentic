@@ -108,3 +108,4 @@ def write_electronic_sales_sheet(report_json: str) -> str:
             "status": "error",
             "message": str(e)
         })
+    
