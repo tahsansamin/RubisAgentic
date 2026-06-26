@@ -1,0 +1,61 @@
+31/03/2026
+      Pump 1
+PMS:1644822.811
+PMS:648213.372
+AG0:830865.206
+AGO:532441.494
+
+      PUMP 2
+PMs:1343324.486
+PMS. 329786.602
+AGO:434847.835
+AGO:285962.382
+
+   STOCK
+PMS:9560
+AGo: 9752.94
+
+     LOSS AND GAIN$&'
+PMS +16
+AGO. -10
+
+TOTAL SALES
+PMS:1743.748=old price 732.316)
+AGO:731.144(old price 285.215)
+
+  LPG SALES:
+12kg (1)102000
+
+
+
+     LUBES SALES 
+GTX½L 
+GTX 1L(1)19000
+GTX 4L(5)360000
+Edge w401L (3)150000
+Multi 1L (2)40000
+Turbomax 1L (7)161000
+Turbomax 5L (3)330000
+Transmax cvT (4)240000
+coolant (2)36000
+Dot 4(3)30000
+power 1(2)32000
+Air cleaner (1)20000
+
+ Expenses:
+TP to bank 2000
+
+
+ ELECTRONIC SALES:
+Aitel m :100000
+Visa card:554905
+Rubis card:
+Rubis App : 
+Top up:
+
+BANKING 13,697,000
+
+Water presence 
+Pms: little drops
+Ago: little drops
+Bik: Unmeasured droops

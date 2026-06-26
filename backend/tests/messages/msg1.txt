@@ -1,0 +1,44 @@
+22/06/2026
+      Pump 1
+PMS:1709211.595
+PMS:679761.213
+AG0:857618.798
+AGO:549370.320
+
+      PUMP 2
+PMs:1396086.013
+PMS. 348384.545
+AGO:449227.617
+AGO:294349.184
+
+   STOCK
+PMS: 13000
+AGo:12618.18
+
+     LOSS AND GAIN
+PMS  0
+AGO. +9
+
+TOTAL SALES
+PMS: 1294.473
+AGO: 636.372
+Rtt pms 9.861
+.      ago 8.812
+  LPG SALES:
+
+     LUBES SALES  :   GTX ½L (4)40000, GTX 1L (5)95000 , GTX 4L (7)504000, Edge w30 1L (1)55000,Turbomax 1L (3)69000,Turbomax 5L (1)110000, coolant (2)36000,Dot4(2)20000, power 1 (1)17000,
+ Expenses:
+ ,TP to bank 2000, At and survey 4000
+ ELECTRONIC SALES:
+Airtel money : 
+Visa card:130000
+Rubis card:31000
+Rubis App : 
+Top up:
+
+BANKING 12,471,000
+
+Water presence 
+Pms: little drops
+Ago: little drops
+Bik: Unmeasured droops

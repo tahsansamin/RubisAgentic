@@ -1,0 +1,60 @@
+27/03/2026
+      Pump 1
+PMS:1641299.367
+PMS:646691.067
+AG0:829469.975
+AGO:531690.597
+
+      PUMP 2
+PMs:1340192.897
+PMS. 329300.795
+AGO:434220.340
+AGO:285410.200
+
+   STOCK
+PMS:1902.542
+AGo: 931.4
+
+     LOSS AND GAIN$&'
+PMS -41
+AGO. -44
+
+TOTAL SALES
+PMS=1902.542
+AGO=931.4
+
+  LPG SALES:
+12kg (1)102000
+
+
+     LUBES SALES 
+GTX½L (1)10000
+GTX 1L(1)19000
+GTX 4L(3)216099
+Edge w40 4L (1)215000
+Magnatec 1L (4)132000
+Multi 1L (5)100000
+multi 5L (3)285000
+ATF 1L (2)30000
+Dot 4(1)10000
+
+
+ Expenses:
+TP to bank 2000
+At and survey 4000
+Water bill 183000 with charges
+Mr jabber fuel 200000
+
+ ELECTRONIC SALES:
+
+Visa card:130000
+Rubis card:403000
+Rubis App : 
+Top up:
+
+BANKING 14,745,000
+
+Water presence 
+Pms: little drops
+Ago: little drops
+Bik: Unmeasured droops
