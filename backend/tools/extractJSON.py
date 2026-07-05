@@ -343,3 +343,176 @@ Bik: Unmeasured droops """
 # print(extract_expense.invoke(test_report))
 # new_report = rewrite_report_for_llm.invoke(test_report)
 # print(extract_expense.invoke(new_report))
+
+
+
+# theese contain the test functions without annotations used for resting
+def extract_expense_test(report: str):
+    """
+    Extract expense data from a fuel station report.
+    """
+
+    llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
+
+    system_prompt = """You are a fuel station data extraction engine.
+
+CRITICAL: Output ONLY valid JSON. NO explanation, NO reasoning, NO comments, NO extra text.
+Start with { and end with }. Nothing else.
+
+RULES:
+- Normalize all numbers (remove commas, spaces)
+- Do not guess or calculate values — only extract what is explicitly stated
+- Values are in Uganda Shillings (UGX), always whole numbers"""
+
+    schema = {
+    "date": None,
+    "expenses": [
+        {
+            "expense_name": None,
+            "amount": None
+        }
+    ]
+}
+
+    prompt = f"""Extract expense data from this fuel station report and return ONLY valid JSON (no other text):
+
+{report}
+
+Return valid JSON in EXACT format (start with {{ and end with }}):
+{json.dumps(schema, indent=2)}"""
+    result = llm.invoke([
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": prompt}
+    ])
+    cleaned = clean_json(result.content)
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON: {e}")
+        print(f"Cleaned response: {cleaned}")
+        raise
+
+def extract_info_meter_sheet_test(report: str) -> Dict[str, Any]:
+    """
+    Extract pump opening, closing, and RTT data from a fuel station report.
+    """
+
+    llm = ChatGroq(
+        model="qwen/qwen3-32b",
+        temperature=0)
+
+    system_prompt = """You are a fuel station data extraction engine.
+
+CRITICAL: Output ONLY valid JSON. NO explanation, NO reasoning, NO comments, NO extra text.
+Start with { and end with }. Nothing else.
+
+RULES:
+- Normalize all numbers (remove commas, spaces)
+- Pump names may be misspelled — map them to: PMS 1, PMS 2, PMS 3, PMS 4, AGO 2, AGO 3, AGO 4
+- If a value is missing or not mentioned, use null
+- Do not guess or calculate values — only extract what is explicitly stated
+- RTT means returns, transfers, or losses"""
+
+    schema = {
+        "date": None,
+        "pumps": {
+            "PMS 1": {"opening": None, "closing": None},
+            "PMS 2": {"opening": None, "closing": None},
+            "PMS 3": {"opening": None, "closing": None},
+            "PMS 4": {"opening": None, "closing": None},
+            "AGO 2": {"opening": None, "closing": None},
+            "AGO 3": {"opening": None, "closing": None},
+            "AGO 4": {"opening": None, "closing": None},
+        },
+        "rtt": {
+            "PMS": None,
+            "AGO": None
+        }
+    }
+
+    prompt = f"""Extract data from this fuel station report and return ONLY valid JSON (no other text):
+
+{report}
+
+Return valid JSON in EXACT format (start with {{ and end with }}):
+{json.dumps(schema, indent=2)}"""
+
+    result = llm.invoke([
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": prompt}
+    ])
+
+    cleaned = clean_json(result.content)
+
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON: {e}")
+        print(f"Cleaned response: {cleaned}")
+        raise
+
+
+def extract_info_electronic_sales_sheet_test(report: str) -> Dict[str, Any]:
+    """
+    Extract electronic sales data (MomoPay, Airtel, Visa Card, Rubis Card, Rubis App)
+    from a fuel station report.
+    """
+
+    llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
+
+    system_prompt = """You are a fuel station data extraction engine.
+
+CRITICAL: Output ONLY valid JSON. NO explanation, NO reasoning, NO comments, NO extra text.
+Start with { and end with }. Nothing else.
+CRITICAL: ONLY items under the ‘Expenses’ or ‘expenses:’ or equivalent heading are allowed
+CRITICAL: HARD EXCLUSIONS (NEVER include these even if they look like expenses):
+- STOCK
+- LOSS AND GAIN
+- TOTAL SALES
+- LPG SALES
+- LUBES SALES
+- ELECTRONIC SALES
+- BANKING 
+- TOP UP
+- WATER PRESENCE
+
+
+RULES:
+- Normalize all numbers (remove commas, spaces)
+- Payment method names may be misspelled or abbreviated — map them to:
+  MOMOPAY, AIRTEL, VISA CARD, RUBIS CARD, RUBIS APP
+- If a value is missing or not mentioned, use null
+- Do not guess or calculate values — only extract what is explicitly stated
+- Values are in Uganda Shillings (UGX), always whole numbers"""
+
+    schema = {
+        "date": None,
+        "electronic_sales": {
+            "MOMOPAY":    None,
+            "AIRTEL":     None,
+            "VISA CARD":  None,
+            "RUBIS CARD": None,
+            "RUBIS APP":  None,
+        }
+    }
+
+    prompt = f"""Extract electronic sales data from this fuel station report and return ONLY valid JSON (no other text):
+
+{report}
+
+Return valid JSON in EXACT format (start with {{ and end with }}):
+{json.dumps(schema, indent=2)}"""
+
+    result = llm.invoke([
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": prompt}
+    ])
+
+    cleaned = clean_json(result.content)
+
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON: {e}")
+        print(f"Cleaned response: {cleaned}")
+        raise
