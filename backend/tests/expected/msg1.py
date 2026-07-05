@@ -3,11 +3,10 @@ fuel = {
         "pumps": {
             "PMS 1": {"opening": 1709211.595, "closing": 679761.213},
             "PMS 2": {"opening": 1396086.013, "closing": 348384.545},
-            "PMS 3": {"opening": None, "closing": None},
-            "PMS 4": {"opening": None, "closing": None},
-            "AGO 2": {"opening": 857618.798, "closing": 549370.320},
-            "AGO 3": {"opening": 449227.617, "closing": 294349.184},
-            "AGO 4": {"opening": None, "closing": None},
+            
+            "AGO 1": {"opening": 857618.798, "closing": 549370.320},
+            "AGO 2": {"opening": 449227.617, "closing": 294349.184},
+   
         },
         "rtt": {
             "PMS": 9.861,
