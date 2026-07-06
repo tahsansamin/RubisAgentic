@@ -94,9 +94,10 @@ CRITICAL: Output ONLY valid JSON. NO explanation, NO reasoning, NO comments, NO 
 Start with { and end with }. Nothing else.
 
 RULES:
+- All opening, closing, and rtt values MUST be JSON numbers (e.g. 1709211.595), NEVER strings (e.g. NOT "1709211.595")
 - Normalize all numbers (remove commas, spaces)
-- Pump names may be misspelled — map them to: PMS 1, PMS 2, PMS 3, PMS 4, AGO 2, AGO 3, AGO 4
-- If a value is missing or not mentioned, use null
+- Pump names may be misspelled — map them to: PMS 1, PMS 2, PMS 3, PMS 4, AGO 1, AGO 2, AGO 3, AGO 4
+- If a value is missing or not mentioned, use null (not a string)
 - Do not guess or calculate values — only extract what is explicitly stated
 - RTT means returns, transfers, or losses"""
 
@@ -107,6 +108,7 @@ RULES:
             "PMS 2": {"opening": None, "closing": None},
             "PMS 3": {"opening": None, "closing": None},
             "PMS 4": {"opening": None, "closing": None},
+            "AGO 1": {"opening": None, "closing": None},
             "AGO 2": {"opening": None, "closing": None},
             "AGO 3": {"opening": None, "closing": None},
             "AGO 4": {"opening": None, "closing": None},
@@ -407,9 +409,10 @@ CRITICAL: Output ONLY valid JSON. NO explanation, NO reasoning, NO comments, NO 
 Start with { and end with }. Nothing else.
 
 RULES:
+- All opening, closing, and rtt values MUST be JSON numbers (e.g. 1709211.595), NEVER strings (e.g. NOT "1709211.595")
 - Normalize all numbers (remove commas, spaces)
-- Pump names may be misspelled — map them to: PMS 1, PMS 2, PMS 3, PMS 4, AGO 2, AGO 3, AGO 4
-- If a value is missing or not mentioned, use null
+- Pump names may be misspelled — map them to: PMS 1, PMS 2, PMS 3, PMS 4, AGO 1, AGO 2, AGO 3, AGO 4
+- If a value is missing or not mentioned, use null (not a string)
 - Do not guess or calculate values — only extract what is explicitly stated
 - RTT means returns, transfers, or losses"""
 
@@ -420,6 +423,7 @@ RULES:
             "PMS 2": {"opening": None, "closing": None},
             "PMS 3": {"opening": None, "closing": None},
             "PMS 4": {"opening": None, "closing": None},
+            "AGO 1": {"opening": None, "closing": None},
             "AGO 2": {"opening": None, "closing": None},
             "AGO 3": {"opening": None, "closing": None},
             "AGO 4": {"opening": None, "closing": None},
