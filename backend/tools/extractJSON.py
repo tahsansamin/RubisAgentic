@@ -286,13 +286,13 @@ Rewritten report:"""
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": prompt}
     ])
-    cleaned_text = re.sub(
-    r"<think>.*?</think>",
-    "",
-    result.content.strip(),
-    flags=re.DOTALL)
+    # cleaned_text = re.sub(
+    # r"<think>.*?</think>",
+    # "",
+    # result.content.strip(),
+    # flags=re.DOTALL)
 
-    return cleaned_text.strip()
+    return result
 
 
 test_report = """04/06/2026
