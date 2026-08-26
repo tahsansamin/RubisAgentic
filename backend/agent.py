@@ -34,3 +34,5 @@ def display_agent(agent):
     # with open("graph.png", "wb") as f:
     #     f.write(graph)
 
+
+

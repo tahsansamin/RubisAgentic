@@ -3,18 +3,15 @@ from typing import Any, Dict, Tuple
 
 from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
-from langchain_groq import ChatGroq
 
 from .extractJSON import extract_info_meter_sheet, extract_info_electronic_sales_sheet
-from .writefuelmeter import write_fuel_meter_sheet
-from .write_electronic_sales import write_electronic_sales_sheet
 
 load_dotenv()
 
 
 def initialize_llama_model_with_tools(
-    model: str = "qwen/qwen3-32b",
-    model_provider: str = "groq",
+    model: str = "gpt-4o-mini",
+    model_provider: str = "openai",
     temperature: float = 0,
     tool_choice: str | bool = "auto",
     api_key: str | None = None,
@@ -22,9 +19,9 @@ def initialize_llama_model_with_tools(
 ) -> Tuple[Any, Dict[str, Any]]:
     """Create a Llama chat model and bind the extractJSON tool set to it."""
 
-    api_key = api_key or os.environ.get("GROQ_API_KEY")
+    api_key = api_key or os.environ.get("OPENAI_API_KEY")
     if not api_key:
-        raise ValueError("Missing GROQ_API_KEY in environment")
+        raise ValueError("Missing OPENAI_API_KEY in environment")
 
 
     chat_model = init_chat_model(
@@ -35,7 +32,7 @@ def initialize_llama_model_with_tools(
         **kwargs,
     )
 
-    tools = [extract_info_meter_sheet, extract_info_electronic_sales_sheet, write_fuel_meter_sheet, write_electronic_sales_sheet]
+    tools = [extract_info_meter_sheet, extract_info_electronic_sales_sheet]
     model_with_tools = chat_model.bind_tools(
         tools,
         tool_choice=tool_choice,

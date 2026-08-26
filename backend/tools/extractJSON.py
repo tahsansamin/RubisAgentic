@@ -1,7 +1,7 @@
 from typing import TypedDict, Optional, List, Dict, Any
 from langchain_core.tools import tool
 from langchain_google_genai import ChatGoogleGenerativeAI as Gemini
-from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 import re
 from dotenv import load_dotenv
 import os
@@ -84,8 +84,8 @@ def extract_info_meter_sheet(report: str) -> Dict[str, Any]:
     Extract pump opening, closing, and RTT data from a fuel station report.
     """
 
-    llm = ChatGroq(
-        model="qwen/qwen3-32b",
+    llm = ChatOpenAI(
+        model="gpt-4o-mini",
         temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
@@ -148,7 +148,7 @@ def extract_info_electronic_sales_sheet(report: str) -> Dict[str, Any]:
     from a fuel station report.
     """
 
-    llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
 
@@ -214,7 +214,7 @@ def extract_expense(report: str):
     Extract expense data from a fuel station report.
     """
 
-    llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
 
@@ -265,7 +265,7 @@ def rewrite_report_for_llm(report: str) -> str:
     Rewrite a petrol station report into a clearer, normalized plain text form for another LLM.
     """
 
-    llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
     system_prompt = """You are a petrol station report normalizer.
 
@@ -354,7 +354,7 @@ def extract_expense_test(report: str):
     Extract expense data from a fuel station report.
     """
 
-    llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
 
@@ -399,8 +399,8 @@ def extract_info_meter_sheet_test(report: str) -> Dict[str, Any]:
     Extract pump opening, closing, and RTT data from a fuel station report.
     """
 
-    llm = ChatGroq(
-        model="qwen/qwen3-32b",
+    llm = ChatOpenAI(
+        model="gpt-4o-mini",
         temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
@@ -462,7 +462,7 @@ def extract_info_electronic_sales_sheet_test(report: str) -> Dict[str, Any]:
     from a fuel station report.
     """
 
-    llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
 
@@ -520,3 +520,9 @@ Return valid JSON in EXACT format (start with {{ and end with }}):
         print(f"Error parsing JSON: {e}")
         print(f"Cleaned response: {cleaned}")
         raise
+
+
+# if __name__ == "__main__":
+#     print("Testing Groq electronic-sales extraction...")
+#     result = extract_info_electronic_sales_sheet.invoke({"report": test_report})
+#     print(json.dumps(result, indent=2))

@@ -1,10 +1,11 @@
 from agent import build_agent, display_agent
 from langchain.messages import HumanMessage
+import json
 
 
 myagent = build_agent()
 test_input = """
-10th June 2026
+26th August 2026
       Pump 1
 PMS:1696506.241
 PMS:674346.474
@@ -49,8 +50,16 @@ Pms: little drops
 Ago: little drops
 Bik: Unmeasured droops
 """
+print("starting agent test")
 messages = [HumanMessage(content=test_input)]
 messages = myagent.invoke({"messages": messages})
-for m in messages["messages"]:
-    m.pretty_print()
-print (messages["messages"][-1])
+final_content = messages["messages"][-1].content
+try:
+      output = json.loads(final_content)
+      if isinstance(output, dict):
+            output = [output]
+      print(json.dumps(output, indent=2))
+      
+except json.JSONDecodeError:
+      print(final_content)
+print("ended")
