@@ -1,5 +1,7 @@
 from agent import build_agent, display_agent
 from langchain.messages import HumanMessage
+from tools.writefuelmeter import write_fuel_meter_sheet
+from tools.write_electronic_sales import write_electronic_sales_sheet
 import json
 
 
@@ -50,16 +52,27 @@ Pms: little drops
 Ago: little drops
 Bik: Unmeasured droops
 """
-print("starting agent test")
-messages = [HumanMessage(content=test_input)]
-messages = myagent.invoke({"messages": messages})
-final_content = messages["messages"][-1].content
-try:
-      output = json.loads(final_content)
-      if isinstance(output, dict):
-            output = [output]
-      print(json.dumps(output, indent=2))
-      
-except json.JSONDecodeError:
-      print(final_content)
-print("ended")
+
+def return_dictionary(report: str) -> dict:
+    """Return a dictionary containing the extracted information from the report."""
+    messages = [HumanMessage(content=report)]
+    messages = myagent.invoke({"messages": messages})
+    final_content = messages["messages"][-1].content
+    try:
+        output = json.loads(final_content)
+        return output
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Failed to decode JSON: {e}")
+
+
+def write_extracted_information(extracted: dict) -> None:
+    """Write the extracted fuel and electronic-sales data to their sheets."""
+    
+    electronic_result = write_electronic_sales_sheet.invoke(json.dumps(extracted[1]))
+    meter_result = write_fuel_meter_sheet.invoke(json.dumps(extracted[0]))
+    print("success")
+    
+
+output_dict = return_dictionary(test_input)
+
+print(output_dict)

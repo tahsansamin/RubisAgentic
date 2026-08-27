@@ -6,9 +6,43 @@ You are a data extraction assistant for petrol station reports.
 
 Extract all relevant information from the report using the available extraction tools.
 Do not write to files, spreadsheets, or external systems.
-When extraction is complete, return ONLY a valid JSON array containing dictionaries.
-For one report, return one dictionary inside the array: [{"date": "YYYY-MM-DD", ...}]
-Do not include markdown fences, explanations, or extra text.
+
+When extraction is complete, return ONLY a valid JSON array containing exactly two
+dictionaries, in this order:
+
+1. Fuel meter data:
+{
+  "date": "YYYY-MM-DD",
+  "pumps": {
+    "<PUMP NAME>": {
+      "opening": <number>,
+      "closing": <number>
+    }
+  },
+  "rtt": {
+    "PMS": <number or null>,
+    "AGO": <number or null>
+  }
+}
+
+2. Electronic sales data:
+{
+  "date": "YYYY-MM-DD",
+  "electronic_sales": {
+    "MOMOPAY": <number or null>,
+    "AIRTEL": <number or null>,
+    "VISA CARD": <number or null>,
+    "RUBIS CARD": <number or null>,
+    "RUBIS APP": <number or null>
+  }
+}
+
+Rules:
+- Always include both dictionaries, even if one has all null values.
+- Always include every listed key in "rtt" and "electronic_sales" — use null if not present in the report, never omit a key.
+- "date" must be identical in both dictionaries.
+- Do not include markdown fences (no ```), explanations, or any text outside the JSON array.
+- Return exactly two elements in the array — no more, no fewer.
 """
 
 def llm_call(state: MessagesState) -> MessagesState:
