@@ -2,6 +2,7 @@ from agent import build_agent, display_agent
 from langchain.messages import HumanMessage
 from tools.writefuelmeter import write_fuel_meter_sheet
 from tools.write_electronic_sales import write_electronic_sales_sheet
+from tools.extractJSON import normalize_fuel_meter_data
 import json
 
 
@@ -60,6 +61,10 @@ def return_dictionary(report: str) -> dict:
     final_content = messages["messages"][-1].content
     try:
         output = json.loads(final_content)
+        if isinstance(output, list):
+            for index, item in enumerate(output):
+                if isinstance(item, dict) and "pumps" in item:
+                    output[index] = normalize_fuel_meter_data(item)
         return output
     except json.JSONDecodeError as e:
         raise ValueError(f"Failed to decode JSON: {e}")
@@ -72,7 +77,3 @@ def write_extracted_information(extracted: dict) -> None:
     meter_result = write_fuel_meter_sheet.invoke(json.dumps(extracted[0]))
     print("success")
     
-
-output_dict = return_dictionary(test_input)
-
-print(output_dict)

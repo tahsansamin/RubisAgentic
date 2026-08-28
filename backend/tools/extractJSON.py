@@ -77,6 +77,30 @@ def clean_json(text: str) -> str:
     return text
 
 
+def normalize_fuel_meter_data(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Return fuel data with the complete, stable output schema."""
+    pump_names = (
+        "PMS 1", "PMS 2", "PMS 3", "PMS 4",
+        "AGO 1", "AGO 2", "AGO 3", "AGO 4",
+    )
+    pumps = data.get("pumps") or {}
+
+    return {
+        "date": data.get("date"),
+        "pumps": {
+            pump_name: {
+                "opening": (pumps.get(pump_name) or {}).get("opening"),
+                "closing": (pumps.get(pump_name) or {}).get("closing"),
+            }
+            for pump_name in pump_names
+        },
+        "rtt": {
+            "PMS": (data.get("rtt") or {}).get("PMS"),
+            "AGO": (data.get("rtt") or {}).get("AGO"),
+        },
+    }
+
+
 
 @tool
 def extract_info_meter_sheet(report: str) -> Dict[str, Any]:
@@ -134,7 +158,7 @@ Return valid JSON in EXACT format (start with {{ and end with }}):
     cleaned = clean_json(result.content)
 
     try:
-        return json.loads(cleaned)
+        return normalize_fuel_meter_data(json.loads(cleaned))
     except json.JSONDecodeError as e:
         print(f"Error parsing JSON: {e}")
         print(f"Cleaned response: {cleaned}")
@@ -259,7 +283,7 @@ Return valid JSON in EXACT format (start with {{ and end with }}):
 
 
 
-@tool
+
 def rewrite_report_for_llm(report: str) -> str:
     """
     Rewrite a petrol station report into a clearer, normalized plain text form for another LLM.

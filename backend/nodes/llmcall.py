@@ -12,18 +12,19 @@ dictionaries, in this order:
 
 1. Fuel meter data:
 {
-  "date": "YYYY-MM-DD",
-  "pumps": {
-    "<PUMP NAME>": {
-      "opening": <number>,
-      "closing": <number>
-    }
-  },
-  "rtt": {
-    "PMS": <number or null>,
-    "AGO": <number or null>
-  }
-}
+  "date": "2026-05-31",
+    "pumps": {
+        "PMS 1": {"opening": <number or null>, "closing": <number or null>},
+        "PMS 2": {"opening": <number or null>, "closing": <number or null>},
+        "PMS 3": {"opening": <number or null>, "closing": <number or null>},
+        "PMS 4": {"opening": <number or null>, "closing": <number or null>},
+        "AGO 1": {"opening": <number or null>, "closing": <number or null>},
+        "AGO 2": {"opening": <number or null>, "closing": <number or null>},
+        "AGO 3": {"opening": <number or null>, "closing": <number or null>},
+        "AGO 4": {"opening": <number or null>, "closing": <number or null>}
+    },
+    "rtt": {"PMS": <number or null>, "AGO": <number or null>}
+} where PMS 1-4 and AGO 1-4 correspond to the four pumps for each fuel type and their reading
 
 2. Electronic sales data:
 {
