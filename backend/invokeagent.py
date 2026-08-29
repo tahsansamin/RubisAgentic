@@ -1,3 +1,5 @@
+from typing import List
+
 from agent import build_agent, display_agent
 from langchain.messages import HumanMessage
 from tools.writefuelmeter import write_fuel_meter_sheet
@@ -53,8 +55,8 @@ Pms: little drops
 Ago: little drops
 Bik: Unmeasured droops
 """
-
-def return_dictionary(report: str) -> dict:
+    
+def return_dictionary(report: str) -> List[dict]:
     """Return a dictionary containing the extracted information from the report."""
     messages = [HumanMessage(content=report)]
     messages = myagent.invoke({"messages": messages})
@@ -76,4 +78,20 @@ def write_extracted_information(extracted: dict) -> None:
     electronic_result = write_electronic_sales_sheet.invoke(json.dumps(extracted[1]))
     meter_result = write_fuel_meter_sheet.invoke(json.dumps(extracted[0]))
     print("success")
-    
+
+def combine_and_write(report: str) -> None:
+    """Combine the extraction and writing process."""
+    try:
+        myagent = build_agent()
+    except Exception as e:
+        print(f"Error occurred during agent building: {e}")
+        return
+    try:
+        extracted_info = return_dictionary(report)
+    except ValueError as e:
+        print(f"Error occurred during extraction: {e}")
+    try:
+        write_extracted_information(extracted_info)
+
+    except ValueError as e:
+        print(f"Error occurred during writing: {e}")
