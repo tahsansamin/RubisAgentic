@@ -13,7 +13,8 @@ PUMP_ROWS = {
     "PMS 3": {"opening": 10, "closing": 11, "sales": 12},
     "PMS 4": {"opening": 13, "closing": 14, "sales": 15},
 
-    # AGO pumps (rows 23-31)
+    # AGO pumps (rows 20-31)
+    "AGO 1": {"opening": 20, "closing": 21, "sales": 22},
     "AGO 2": {"opening": 23, "closing": 24, "sales": 25},
     "AGO 3": {"opening": 26, "closing": 27, "sales": 28},
     "AGO 4": {"opening": 29, "closing": 30, "sales": 31},
@@ -43,6 +44,10 @@ def write_fuel_meter_sheet(report_json: str) -> str:
     def parse_excel_date(cell_value) -> Optional[date]:
         if not cell_value:
             return None
+        if isinstance(cell_value, datetime):
+            return cell_value.date()
+        if isinstance(cell_value, date):
+            return cell_value
         try:
             raw = str(cell_value).replace(" ", "").replace("-", "")
             for suffix in ["st", "nd", "rd", "th"]:
@@ -84,7 +89,18 @@ def write_fuel_meter_sheet(report_json: str) -> str:
         data = json.loads(report_json) if isinstance(report_json, str) else report_json
 
         # Parse date
-        target_date = datetime.strptime(data["date"], "%Y-%m-%d").date()
+        date_value = str(data["date"]).strip()
+        target_date = None
+        for date_format in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"):
+            try:
+                target_date = datetime.strptime(date_value, date_format).date()
+                break
+            except ValueError:
+                continue
+        if target_date is None:
+            raise ValueError(
+                "Unsupported date format; expected YYYY-MM-DD or DD/MM/YYYY"
+            )
 
         wb = openpyxl.load_workbook(EXCEL_PATH)
         ws = wb["METER"]
@@ -124,7 +140,7 @@ def write_fuel_meter_sheet(report_json: str) -> str:
         # Write AGO summary rows
         ago_rtt = data["rtt"]["AGO"] or 0
         ws.cell(row=AGO_SUMMARY["total"], column=col_idx).value = \
-            f"={col}25+{col}28+{col}31"
+            f"={col}22+{col}25+{col}28+{col}31"
         ws.cell(row=AGO_SUMMARY["rtt"],   column=col_idx).value = ago_rtt
         ws.cell(row=AGO_SUMMARY["net"],   column=col_idx).value = \
             f"={col}{AGO_SUMMARY['total']}-{col}{AGO_SUMMARY['rtt']}"

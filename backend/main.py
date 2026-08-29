@@ -1,6 +1,11 @@
+import os
+import sys
+
 import fastapi
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+from invokeagent import combine_and_write
 
 app = fastapi.FastAPI()
 
@@ -21,4 +26,11 @@ def read_root():
 
 @app.post('/send_message')
 def send_message(request: MessageRequest):
+    # Extract JSON data from the message
+    
+    
+    # Write the JSON data to a spreadsheet
+    combine_and_write(request.text)
+    
     return {'message': request.text}
+

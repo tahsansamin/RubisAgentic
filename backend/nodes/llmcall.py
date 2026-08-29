@@ -1,46 +1,60 @@
 from langchain.messages import SystemMessage
 from tools.initialise_model import initialize_llama_model_with_tools
 from states.state import MessagesState
-from tools.writefuelmeter import write_fuel_meter_sheet
-#add more sheet names to system message and remaining variable definition as you go on building them.
 system_message = """
-You are a bookkeeping assistant for petrol station businesses.
+You are a data extraction assistant for petrol station reports.
 
-You will receive a single report message that contains data for multiple sheets.
-You must process the sheets ONE AT A TIME in this strict order:
-1. METER — pump openings, closings, RTT
-2. MOMO,AIRTEL,CARDS — mobile money transactions, card payments
+Extract all relevant information from the report using the available extraction tools.
+Do not write to files, spreadsheets, or external systems.
 
+When extraction is complete, return ONLY a valid JSON array containing exactly two
+dictionaries, in this order:
 
+1. Fuel meter data:
+{
+  "date": "2026-05-31",
+    "pumps": {
+        "PMS 1": {"opening": <number or null>, "closing": <number or null>},
+        "PMS 2": {"opening": <number or null>, "closing": <number or null>},
+        "PMS 3": {"opening": <number or null>, "closing": <number or null>},
+        "PMS 4": {"opening": <number or null>, "closing": <number or null>},
+        "AGO 1": {"opening": <number or null>, "closing": <number or null>},
+        "AGO 2": {"opening": <number or null>, "closing": <number or null>},
+        "AGO 3": {"opening": <number or null>, "closing": <number or null>},
+        "AGO 4": {"opening": <number or null>, "closing": <number or null>}
+    },
+    "rtt": {"PMS": <number or null>, "AGO": <number or null>}
+} where PMS 1-4 and AGO 1-4 correspond to the four pumps for each fuel type and their reading
 
+2. Electronic sales data:
+{
+  "date": "YYYY-MM-DD",
+  "electronic_sales": {
+    "MOMOPAY": <number or null>,
+    "AIRTEL": <number or null>,
+    "VISA CARD": <number or null>,
+    "RUBIS CARD": <number or null>,
+    "RUBIS APP": <number or null>
+  }
+}
 
-RULES:
-- Check the state to see which sheets have already been processed
-- Always call the tool for the NEXT unprocessed sheet
-- Extract ONLY the data relevant to that sheet from the message
-- Do not process a sheet that is already marked as done
-- When all sheets are done, stop
+Rules:
+- Always include both dictionaries, even if one has all null values.
+- Always include every listed key in "rtt" and "electronic_sales" — use null if not present in the report, never omit a key.
+- "date" must be identical in both dictionaries.
+- Do not include markdown fences (no ```), explanations, or any text outside the JSON array.
+- Return exactly two elements in the array — no more, no fewer.
 """
 
 def llm_call(state: MessagesState) -> MessagesState:
-    """LLM decides which sheet tool to call next based on what has been processed."""
+    """Ask the LLM to extract report information as JSON."""
     model_with_tools = initialize_llama_model_with_tools()[0]
 
-    # Build a status summary so the LLM knows what's been done
-    processed = state.get("processed_sheets", [])
-    remaining = [s for s in ["METER","MOMO,AIRTEL,CARDS"] 
-                 if s not in processed]
-
-    status_message = SystemMessage(content=f"""
-Sheets already processed: {processed if processed else "None"}
-Sheets still to process: {remaining}
-Next sheet to process: {remaining[0] if remaining else "ALL DONE — do not call any tool"}
-""")
 
     return {
         "messages": [
             model_with_tools.invoke(
-                [SystemMessage(content=system_message), status_message]
+                [SystemMessage(content=system_message)]
                 + state["messages"]
             )
         ],

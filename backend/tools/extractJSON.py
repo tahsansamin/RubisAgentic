@@ -1,7 +1,7 @@
 from typing import TypedDict, Optional, List, Dict, Any
 from langchain_core.tools import tool
 from langchain_google_genai import ChatGoogleGenerativeAI as Gemini
-from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 import re
 from dotenv import load_dotenv
 import os
@@ -77,6 +77,30 @@ def clean_json(text: str) -> str:
     return text
 
 
+def normalize_fuel_meter_data(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Return fuel data with the complete, stable output schema."""
+    pump_names = (
+        "PMS 1", "PMS 2", "PMS 3", "PMS 4",
+        "AGO 1", "AGO 2", "AGO 3", "AGO 4",
+    )
+    pumps = data.get("pumps") or {}
+
+    return {
+        "date": data.get("date"),
+        "pumps": {
+            pump_name: {
+                "opening": (pumps.get(pump_name) or {}).get("opening"),
+                "closing": (pumps.get(pump_name) or {}).get("closing"),
+            }
+            for pump_name in pump_names
+        },
+        "rtt": {
+            "PMS": (data.get("rtt") or {}).get("PMS"),
+            "AGO": (data.get("rtt") or {}).get("AGO"),
+        },
+    }
+
+
 
 @tool
 def extract_info_meter_sheet(report: str) -> Dict[str, Any]:
@@ -84,8 +108,8 @@ def extract_info_meter_sheet(report: str) -> Dict[str, Any]:
     Extract pump opening, closing, and RTT data from a fuel station report.
     """
 
-    llm = ChatGroq(
-        model="qwen/qwen3-32b",
+    llm = ChatOpenAI(
+        model="gpt-4o-mini",
         temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
@@ -134,7 +158,7 @@ Return valid JSON in EXACT format (start with {{ and end with }}):
     cleaned = clean_json(result.content)
 
     try:
-        return json.loads(cleaned)
+        return normalize_fuel_meter_data(json.loads(cleaned))
     except json.JSONDecodeError as e:
         print(f"Error parsing JSON: {e}")
         print(f"Cleaned response: {cleaned}")
@@ -148,7 +172,7 @@ def extract_info_electronic_sales_sheet(report: str) -> Dict[str, Any]:
     from a fuel station report.
     """
 
-    llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
 
@@ -214,7 +238,7 @@ def extract_expense(report: str):
     Extract expense data from a fuel station report.
     """
 
-    llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
 
@@ -259,13 +283,13 @@ Return valid JSON in EXACT format (start with {{ and end with }}):
 
 
 
-@tool
+
 def rewrite_report_for_llm(report: str) -> str:
     """
     Rewrite a petrol station report into a clearer, normalized plain text form for another LLM.
     """
 
-    llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
     system_prompt = """You are a petrol station report normalizer.
 
@@ -354,7 +378,7 @@ def extract_expense_test(report: str):
     Extract expense data from a fuel station report.
     """
 
-    llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
 
@@ -399,8 +423,8 @@ def extract_info_meter_sheet_test(report: str) -> Dict[str, Any]:
     Extract pump opening, closing, and RTT data from a fuel station report.
     """
 
-    llm = ChatGroq(
-        model="qwen/qwen3-32b",
+    llm = ChatOpenAI(
+        model="gpt-4o-mini",
         temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
@@ -462,7 +486,7 @@ def extract_info_electronic_sales_sheet_test(report: str) -> Dict[str, Any]:
     from a fuel station report.
     """
 
-    llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
     system_prompt = """You are a fuel station data extraction engine.
 
@@ -520,3 +544,9 @@ Return valid JSON in EXACT format (start with {{ and end with }}):
         print(f"Error parsing JSON: {e}")
         print(f"Cleaned response: {cleaned}")
         raise
+
+
+# if __name__ == "__main__":
+#     print("Testing Groq electronic-sales extraction...")
+#     result = extract_info_electronic_sales_sheet.invoke({"report": test_report})
+#     print(json.dumps(result, indent=2))
